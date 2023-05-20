@@ -2,29 +2,11 @@ package start
 
 import (
 	"fmt"
+	"github.com/MamushevArup/minesweeper/app/mid"
 	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 )
-
-type Cell struct {
-	IsBomb    bool
-	IsCovered bool
-	IsFlagged bool
-	Value     int
-}
-
-type Game struct {
-	Grid       [][]Cell
-	Rows       int
-	Columns    int
-	TotalBombs int
-	Remaining  int
-}
-
-var game *Game
-var startTime time.Time
 
 func PromptDifficultyLevel() int {
 	fmt.Println("Choose difficulty level:")
@@ -44,7 +26,7 @@ func PromptDifficultyLevel() int {
 
 	return level
 }
-func NewGame(level int) *Game {
+func NewGame(level int) *mid.Game {
 	var rows, columns, totalBombs int
 
 	switch level {
@@ -56,19 +38,18 @@ func NewGame(level int) *Game {
 		rows, columns, totalBombs = 30, 30, 99
 	}
 
-	game := &Game{
+	game := &mid.Game{
 		Rows:       rows,
 		Columns:    columns,
 		TotalBombs: totalBombs,
 		Remaining:  rows*columns - totalBombs,
 	}
-
 	// Create the grid
-	game.Grid = make([][]Cell, rows)
+	game.Grid = make([][]mid.Cell, rows)
 	for i := 0; i < rows; i++ {
-		game.Grid[i] = make([]Cell, columns)
+		game.Grid[i] = make([]mid.Cell, columns)
 		for j := 0; j < columns; j++ {
-			game.Grid[i][j] = Cell{
+			game.Grid[i][j] = mid.Cell{
 				IsBomb:    false,
 				IsCovered: true,
 				IsFlagged: false,
@@ -92,7 +73,7 @@ func NewGame(level int) *Game {
 	for i := 0; i < rows; i++ {
 		for j := 0; j < columns; j++ {
 			if !game.Grid[i][j].IsBomb {
-				game.Grid[i][j].Value = CountNeighboringBombs(game.Grid, i, j)
+				game.Grid[i][j].Value = mid.CountNeighboringBombs(game.Grid, i, j)
 			}
 		}
 	}
@@ -109,12 +90,12 @@ func ProcessInput(input string) {
 
 	row, column := coords[0], coords[1]
 
-	if row < 0 || row >= game.Rows || column < 0 || column >= game.Columns {
+	if row < 0 || row >= mid.GameV.Rows || column < 0 || column >= mid.GameV.Columns {
 		fmt.Println("Invalid input. The row and column coordinates are out of bounds.")
 		return
 	}
 
-	cell := &game.Grid[row][column]
+	cell := &mid.GameV.Grid[row][column]
 
 	if cell.IsCovered {
 		if cell.IsFlagged {
@@ -122,12 +103,12 @@ func ProcessInput(input string) {
 		} else {
 			cell.IsCovered = false
 			if cell.IsBomb {
-				UncoverCell(game.Grid, row, column)
-				ShowGameOverMessage()
+				mid.UncoverCell(mid.GameV.Grid, row, column)
+				mid.ShowGameOverMessage()
 			} else {
-				game.Remaining--
+				mid.GameV.Remaining--
 				if cell.Value == 0 {
-					UncoverCell(game.Grid, row, column)
+					mid.UncoverCell(mid.GameV.Grid, row, column)
 				}
 			}
 		}

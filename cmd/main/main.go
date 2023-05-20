@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/MamushevArup/minesweeper/app/mid"
+	"github.com/MamushevArup/minesweeper/app/start"
 	"log"
 	"math/rand"
 	"os"
@@ -17,13 +19,14 @@ func main() {
 	level := start.PromptDifficultyLevel()
 
 	// Create a new Minesweeper game
-	game = NewGame(level)
+
+	mid.GameV = start.NewGame(level)
 
 	// Start the timer
-	startTime = time.Now()
+	mid.StartTime = time.Now()
 
 	// Print the initial game state
-	PrintGame()
+	mid.PrintGame()
 
 	// Start the game loop
 	scanner := bufio.NewScanner(os.Stdin)
@@ -31,15 +34,15 @@ func main() {
 		fmt.Print("Enter the coordinates (ex: (4,5)): ")
 		scanner.Scan()
 		input := scanner.Text()
-		ProcessInput(input)
-		if IsGameWon() {
-			ShowWinMessage()
+		start.ProcessInput(input)
+		if mid.IsGameWon() {
+			mid.ShowWinMessage()
 			break
 		}
-		if IsGameOver() {
+		if mid.IsGameOver() {
 			break
 		}
-		PrintGame()
+		mid.PrintGame()
 	}
 
 	if err := scanner.Err(); err != nil {
