@@ -8,23 +8,32 @@ import (
 	"strings"
 )
 
-func PromptDifficultyLevel() int {
-	fmt.Println("Choose difficulty level:")
-	fmt.Println("1. Beginner (9x9 grid, 10 bombs)")
-	fmt.Println("2. Intermediate (16x16 grid, 40 bombs)")
-	fmt.Println("3. Expert (30x30 grid, 99 bombs)")
+func printIntro() {
+	mid.Format("Choose difficulty level:")
+	mid.Format("1. Beginner (9x9 grid, 10 bombs)")
+	mid.Format("2. Intermediate (16x16 grid, 40 bombs)")
+	mid.Format("3. Expert (30x30 grid, 99 bombs)")
+}
 
+func PromptDifficultyLevel() int {
+	printIntro()
 	var level int
+	return levelIdent(level)
+}
+func levelIdent(level int) int {
 	for {
 		fmt.Print("Enter the difficulty level (1-3): ")
 		_, err := fmt.Scanln(&level)
 		if err == nil && level >= 1 && level <= 3 {
 			break
 		}
-		fmt.Println("Invalid input. Please enter a valid difficulty level.")
+		mid.Format("Invalid input. Please enter a valid difficulty level.")
 	}
-
 	return level
+}
+
+func fillGrid() {
+
 }
 func NewGame(level int) *mid.Game {
 	var rows, columns, totalBombs int
@@ -84,14 +93,14 @@ func ProcessInput(input string) {
 	// Parse the row and column coordinates from the input
 	coords := parseCoordinates(input)
 	if coords == nil {
-		fmt.Println("Invalid input. Please enter the row and column coordinates in the format 'row,column'.")
+		mid.Format("Invalid input. Please enter the row and column coordinates in the format 'row,column'.")
 		return
 	}
 
 	row, column := coords[0], coords[1]
 
 	if row < 0 || row >= mid.GameV.Rows || column < 0 || column >= mid.GameV.Columns {
-		fmt.Println("Invalid input. The row and column coordinates are out of bounds.")
+		mid.Format("Invalid input. The row and column coordinates are out of bounds.")
 		return
 	}
 
@@ -113,7 +122,7 @@ func ProcessInput(input string) {
 			}
 		}
 	} else {
-		fmt.Println("Invalid input. The cell is already uncovered.")
+		mid.Format("Invalid input. The cell is already uncovered.")
 	}
 }
 func parseCoordinates(key string) []int {
