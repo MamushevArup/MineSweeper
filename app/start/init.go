@@ -1,1 +1,159 @@
 package start
+
+import (
+	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+	"time"
+)
+
+type Cell struct {
+	IsBomb    bool
+	IsCovered bool
+	IsFlagged bool
+	Value     int
+}
+
+type Game struct {
+	Grid       [][]Cell
+	Rows       int
+	Columns    int
+	TotalBombs int
+	Remaining  int
+}
+
+var game *Game
+var startTime time.Time
+
+func PromptDifficultyLevel() int {
+	fmt.Println("Choose difficulty level:")
+	fmt.Println("1. Beginner (9x9 grid, 10 bombs)")
+	fmt.Println("2. Intermediate (16x16 grid, 40 bombs)")
+	fmt.Println("3. Expert (30x30 grid, 99 bombs)")
+
+	var level int
+	for {
+		fmt.Print("Enter the difficulty level (1-3): ")
+		_, err := fmt.Scanln(&level)
+		if err == nil && level >= 1 && level <= 3 {
+			break
+		}
+		fmt.Println("Invalid input. Please enter a valid difficulty level.")
+	}
+
+	return level
+}
+func NewGame(level int) *Game {
+	var rows, columns, totalBombs int
+
+	switch level {
+	case 1: // Beginner
+		rows, columns, totalBombs = 9, 9, 10
+	case 2: // Intermediate
+		rows, columns, totalBombs = 16, 16, 40
+	case 3: // Expert
+		rows, columns, totalBombs = 30, 30, 99
+	}
+
+	game := &Game{
+		Rows:       rows,
+		Columns:    columns,
+		TotalBombs: totalBombs,
+		Remaining:  rows*columns - totalBombs,
+	}
+
+	// Create the grid
+	game.Grid = make([][]Cell, rows)
+	for i := 0; i < rows; i++ {
+		game.Grid[i] = make([]Cell, columns)
+		for j := 0; j < columns; j++ {
+			game.Grid[i][j] = Cell{
+				IsBomb:    false,
+				IsCovered: true,
+				IsFlagged: false,
+				Value:     0,
+			}
+		}
+	}
+
+	// Place bombs randomly on the grid
+	bombsPlaced := 0
+	for bombsPlaced < totalBombs {
+		row := rand.Intn(rows)
+		column := rand.Intn(columns)
+		if !game.Grid[row][column].IsBomb {
+			game.Grid[row][column].IsBomb = true
+			bombsPlaced++
+		}
+	}
+
+	// Calculate the value of each cell (number of neighboring bombs)
+	for i := 0; i < rows; i++ {
+		for j := 0; j < columns; j++ {
+			if !game.Grid[i][j].IsBomb {
+				game.Grid[i][j].Value = CountNeighboringBombs(game.Grid, i, j)
+			}
+		}
+	}
+
+	return game
+}
+func ProcessInput(input string) {
+	// Parse the row and column coordinates from the input
+	coords := parseCoordinates(input)
+	if coords == nil {
+		fmt.Println("Invalid input. Please enter the row and column coordinates in the format 'row,column'.")
+		return
+	}
+
+	row, column := coords[0], coords[1]
+
+	if row < 0 || row >= game.Rows || column < 0 || column >= game.Columns {
+		fmt.Println("Invalid input. The row and column coordinates are out of bounds.")
+		return
+	}
+
+	cell := &game.Grid[row][column]
+
+	if cell.IsCovered {
+		if cell.IsFlagged {
+			cell.IsFlagged = false
+		} else {
+			cell.IsCovered = false
+			if cell.IsBomb {
+				UncoverCell(game.Grid, row, column)
+				ShowGameOverMessage()
+			} else {
+				game.Remaining--
+				if cell.Value == 0 {
+					UncoverCell(game.Grid, row, column)
+				}
+			}
+		}
+	} else {
+		fmt.Println("Invalid input. The cell is already uncovered.")
+	}
+}
+func parseCoordinates(key string) []int {
+	if len(key) < 4 || key[0] != '(' || key[len(key)-1] != ')' {
+		return nil
+	}
+
+	coords := make([]int, 2)
+	coordsStr := key[1 : len(key)-1]
+	coordsSplit := strings.Split(coordsStr, ",")
+	if len(coordsSplit) != 2 {
+		return nil
+	}
+
+	for i, coordStr := range coordsSplit {
+		coord, err := strconv.Atoi(coordStr)
+		if err != nil {
+			return nil
+		}
+		coords[i] = coord - 1 // Adjust for zero-based indexing
+	}
+
+	return coords
+}
