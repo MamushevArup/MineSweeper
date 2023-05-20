@@ -12,23 +12,15 @@ import (
 )
 
 func main() {
-	// Initialize the random number generator
 	rand.Seed(time.Now().UnixNano())
-
-	// Prompt the user for the difficulty level
 	level := start.PromptDifficultyLevel()
-
-	// Create a new Minesweeper game
 
 	mid.GameV = start.NewGame(level)
 
-	// Start the timer
 	mid.StartTime = time.Now()
 
-	// Print the initial game state
 	mid.PrintGame()
 
-	// Start the game loop
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Enter the coordinates (ex: (4,5)): ")

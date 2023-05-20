@@ -32,18 +32,15 @@ func levelIdent(level int) int {
 	return level
 }
 
-func fillGrid() {
-
-}
 func NewGame(level int) *mid.Game {
 	var rows, columns, totalBombs int
 
 	switch level {
-	case 1: // Beginner
+	case 1:
 		rows, columns, totalBombs = 9, 9, 10
-	case 2: // Intermediate
+	case 2:
 		rows, columns, totalBombs = 16, 16, 40
-	case 3: // Expert
+	case 3:
 		rows, columns, totalBombs = 30, 30, 99
 	}
 
@@ -53,7 +50,7 @@ func NewGame(level int) *mid.Game {
 		TotalBombs: totalBombs,
 		Remaining:  rows*columns - totalBombs,
 	}
-	// Create the grid
+	// Create grid
 	game.Grid = make([][]mid.Cell, rows)
 	for i := 0; i < rows; i++ {
 		game.Grid[i] = make([]mid.Cell, columns)
@@ -67,7 +64,7 @@ func NewGame(level int) *mid.Game {
 		}
 	}
 
-	// Place bombs randomly on the grid
+	// Positioning bombs randomly by level
 	bombsPlaced := 0
 	for bombsPlaced < totalBombs {
 		row := rand.Intn(rows)
@@ -78,7 +75,7 @@ func NewGame(level int) *mid.Game {
 		}
 	}
 
-	// Calculate the value of each cell (number of neighboring bombs)
+	// Calculate the value of each cell if around 0 bombs then val is 0 etc
 	for i := 0; i < rows; i++ {
 		for j := 0; j < columns; j++ {
 			if !game.Grid[i][j].IsBomb {
@@ -90,7 +87,6 @@ func NewGame(level int) *mid.Game {
 	return game
 }
 func ProcessInput(input string) {
-	// Parse the row and column coordinates from the input
 	coords := parseCoordinates(input)
 	if coords == nil {
 		mid.Format("Invalid input. Please enter the row and column coordinates in the format 'row,column'.")
@@ -142,7 +138,7 @@ func parseCoordinates(key string) []int {
 		if err != nil {
 			return nil
 		}
-		coords[i] = coord - 1 // Adjust for zero-based indexing
+		coords[i] = coord - 1
 	}
 
 	return coords

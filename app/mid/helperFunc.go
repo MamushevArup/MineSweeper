@@ -53,7 +53,6 @@ func decor() {
 	}
 	fmt.Println()
 
-	// Print the top border
 	fmt.Print("  +")
 	for i := 1; i <= GameV.Columns; i++ {
 		fmt.Print("---+")
@@ -62,10 +61,8 @@ func decor() {
 }
 func marking() {
 	for i, row := range GameV.Grid {
-		// Print the column number
 		fmt.Printf("%2d|", i+1)
 
-		// Print the cells
 		for _, cell := range row {
 			if cell.IsCovered {
 				if cell.IsFlagged {
@@ -81,7 +78,6 @@ func marking() {
 				}
 			}
 		}
-		// Print the bottom border
 		fmt.Println("\n  +", strings.Repeat("---+", GameV.Columns))
 	}
 }
